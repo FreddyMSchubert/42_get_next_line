@@ -6,88 +6,106 @@
 /*   By: fschuber <fschuber@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 10:24:54 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/19 11:39:12 by fschuber         ###   ########.fr       */
+/*   Updated: 2023/10/20 07:25:02 by fschuber         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	*ft_memcpy(void *dst, const void *src, size_t n)
-{
-	char		*char_src;
-	char		*char_dst;
-	size_t		counter;
+// delete these later
+#include <stdio.h>
 
-	if (!src && !dst)
-		return (NULL);
-	char_src = (char *)src;
-	char_dst = (char *)dst;
-	counter = 0;
-	while (counter < n)
-	{
-		char_dst[counter] = char_src[counter];
-		counter++;
-	}
-	return (dst);
-}
 
-int	print_str(char *str)
+/*
+	@return		First index of \\n or -42
+*/
+int		get_line(char	*str)
 {
 	int		counter;
-	char	temp_char;
 
 	counter = 0;
-	if (!str)
-		return (print_str("(null)"));
-	while (str[counter])
-	{
-		temp_char = (char)str[counter];
-		if (write(1, &temp_char, 1) == -1)
-			return (-1);
-		counter++;
-	}
-	return (counter);
+	while (str[counter] != '\0')
+		if (str[counter] == '\n')
+			return (counter);
+	return (-42);
 }
 
-char	*ft_substr(char const *s, unsigned int start, size_t len)
+/*
+	@brief		Mallocates if there is no space mallocated yet
+*/
+char	*defifndef(char	*str)
 {
-	char		*p;
-	int			substr_len;
-	int			s_len;
-
-	substr_len = len;
-	while (s[s_len])
-		s_len++;
-	if (s_len - start < len)
-		substr_len = s_len - start;
-	if (substr_len < 0)
-		substr_len = 0;
-	if (s_len < start)
-		substr_len = 0;
-	p = (char *)malloc(substr_len + 1);
-	if (p == NULL)
-		return (NULL);
-	ft_memcpy(p, &s[start], substr_len);
-	p[substr_len] = '\0';
-	return (p);
+	if (str != NULL)
+		return (str);
+	else
+		return (malloc(sizeof(char) * BUFFER_SIZE));
 }
 
+/*
+	@brief		Concetanates two strings by mallocating newly and freeing the old dest
+	@return		Concatenated String
+*/
+char	*cat_strings(char *dest, char *src)
+{
+	int		destlen;
+	int		srclen;
+	char	*new_dest;
+	int		counter;
+
+	while (dest[destlen])
+		destlen++;
+	while (src[srclen])
+		srclen++;
+	new_dest = malloc(sizeof(char) * (destlen + srclen));
+	if (!new_dest)
+		return (NULL);
+	counter = 0;
+	while (counter < destlen)
+		new_dest[counter] = dest[counter];
+	while (counter < destlen + srclen)
+		new_dest[destlen + counter] = src[counter];
+	free (dest);
+	return (new_dest);
+	
+}
+
+/*
+	@brief Returns line by line from a file descriptor on repeated calls
+	@var next_line:	Keeps the excess chars from last execution
+	@var this_line:	Keeps chars until they form a new line
+	@var buffer:	Buffer for read() to read into
+*/
 char	*get_next_line(int fd)
 {
-	static int	curr_nl;
-	int			last_nl;
-	char		*buffer;
+	static char		*next_line;
+	char			*this_line;
+	char			*buffer;
+	int				new_line_index;
 
-	last_nl = curr_nl;
-	buffer = malloc(sizeof(char) * 500);
-	read(fd, buffer, 500);
-	while (buffer[curr_nl])
+	next_line = defifndef(next_line);
+	if (!next_line)
+		return (NULL);
+	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
+	buffer[BUFFER_SIZE] = '\0';
+	new_line_index = get_line(next_line);
+	if (new_line_index > -1)
 	{
-		if (buffer[curr_nl] == '\n')
-		{
-			return (ft_substr(buffer, last_nl + 1, curr_nl - last_nl));
-		}
-		curr_nl++;
+		next_line = gnl_substr(next_line, new_line_index, gnl_strlen(next_line));
+		return (gnl_substr(next_line, 0, new_line_index));
 	}
-	return (ft_substr(buffer, last_nl + 1, curr_nl - last_nl));
+	else
+		this_line = cat_strings(this_line, next_line);
+	while (1)
+	{
+		read(fd, buffer, BUFFER_SIZE);
+		this_line = cat_strings(this_line, buffer);
+		new_line_index = get_line(next_line);
+		if (new_line_index > -1)
+		{
+			next_line = gnl_substr(this_line, new_line_index, gnl_strlen(this_line));
+			return (gnl_substr(this_line, 0, new_line_index));
+		}
+	}
 }
