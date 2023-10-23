@@ -6,106 +6,87 @@
 /*   By: fschuber <fschuber@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 10:24:54 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/20 07:25:02 by fschuber         ###   ########.fr       */
+/*   Updated: 2023/10/23 08:23:44 by fschuber         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-// delete these later
-#include <stdio.h>
+int		ft_strlen(char	*str)
+{
+	int	counter;
 
+	counter = 0;
+	while (str[counter])
+		counter++;
+	return (counter);
+}
 
-/*
-	@return		First index of \\n or -42
-*/
-int		get_line(char	*str)
+int		get_first_nl_index(char		*str)
 {
 	int		counter;
 
 	counter = 0;
 	while (str[counter] != '\0')
+	{
 		if (str[counter] == '\n')
 			return (counter);
-	return (-42);
+		counter++;
+	}
+	return (-1);
 }
 
 /*
-	@brief		Mallocates if there is no space mallocated yet
+	@brief		Returns current line and updates leftovers if there is a new line, or returns NULL
 */
-char	*defifndef(char	*str)
+static char	*get_line(char	*leftovers)
 {
-	if (str != NULL)
-		return (str);
-	else
-		return (malloc(sizeof(char) * BUFFER_SIZE));
-}
+	int			counter;
+	char		*current_line;
+	char		*updated_leftovers;
 
-/*
-	@brief		Concetanates two strings by mallocating newly and freeing the old dest
-	@return		Concatenated String
-*/
-char	*cat_strings(char *dest, char *src)
-{
-	int		destlen;
-	int		srclen;
-	char	*new_dest;
-	int		counter;
-
-	while (dest[destlen])
-		destlen++;
-	while (src[srclen])
-		srclen++;
-	new_dest = malloc(sizeof(char) * (destlen + srclen));
-	if (!new_dest)
-		return (NULL);
 	counter = 0;
-	while (counter < destlen)
-		new_dest[counter] = dest[counter];
-	while (counter < destlen + srclen)
-		new_dest[destlen + counter] = src[counter];
-	free (dest);
-	return (new_dest);
-	
+	if (get_first_nl_index(leftovers) > -1)
+	{
+		current_line = gnl_substr(leftovers, 0, counter);
+		leftovers = gnl_substr(leftovers, counter, ft_strlen(leftovers));
+		return (current_line);
+	}
+	return (NULL);
+	return (gnl_substr(leftovers, 0, ft_strlen(leftovers)));
 }
 
 /*
-	@brief Returns line by line from a file descriptor on repeated calls
-	@var next_line:	Keeps the excess chars from last execution
-	@var this_line:	Keeps chars until they form a new line
-	@var buffer:	Buffer for read() to read into
+	@brief (leftovers)		Keeps the content of str after the new line between function calls
 */
-char	*get_next_line(int fd)
+char	*get_next_line(int	fd)
 {
-	static char		*next_line;
-	char			*this_line;
+	static char		*leftovers;
 	char			*buffer;
-	int				new_line_index;
+	char			*temp_line;
 
-	next_line = defifndef(next_line);
-	if (!next_line)
-		return (NULL);
+	if (!leftovers)
+		leftovers = malloc(sizeof(char) * BUFFER_SIZE);
 	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
-	if (!buffer)
+	if (!leftovers || !buffer)
 		return (NULL);
 	buffer[BUFFER_SIZE] = '\0';
-	new_line_index = get_line(next_line);
-	if (new_line_index > -1)
-	{
-		next_line = gnl_substr(next_line, new_line_index, gnl_strlen(next_line));
-		return (gnl_substr(next_line, 0, new_line_index));
-	}
-	else
-		this_line = cat_strings(this_line, next_line);
-	while (1)
-	{
-		read(fd, buffer, BUFFER_SIZE);
-		this_line = cat_strings(this_line, buffer);
-		new_line_index = get_line(next_line);
-		if (new_line_index > -1)
-		{
-			next_line = gnl_substr(this_line, new_line_index, gnl_strlen(this_line));
-			return (gnl_substr(this_line, 0, new_line_index));
-		}
-	}
+	temp_line = get_line(leftovers);
+	if (temp_line != NULL)
+		return (temp_line);
+	read(fd, buffer, BUFFER_SIZE);
+	if (buffer == -1)
+		return (NULL);
+	leftovers = ft_strjoin(leftovers, buffer);
+	if (get_first_nl_index(leftovers) == -1 && buffer == 0)
+		return (free(buffer), leftovers);
+	free(buffer);
+	return (get_next_line(fd));
 }
+
+/*
+	- on the first iteration when leftovers is null, weird shit will happen with strjoin. instead, change strjoin to return the other string if either string is null
+	- handle memory leaks all over but i can do that later
+		- leftovers when its reassigned to strjoin
+		- temp_line
+*/

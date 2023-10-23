@@ -1,4 +1,8 @@
-# Changelog get_next_line by @fschuber
+# Commit Changelog get_next_line by @fschuber
+
+### v0.3.0
+- third iteration, recursive approach
+- not tested
 
 ### v0.2.0
 - second attempt, solid concept, logic is there

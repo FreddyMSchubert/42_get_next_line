@@ -6,7 +6,7 @@
 /*   By: fschuber <fschuber@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 10:25:52 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/20 06:52:20 by fschuber         ###   ########.fr       */
+/*   Updated: 2023/10/23 07:39:36 by fschuber         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-char	*get_next_line(int fd);
+int		ft_strlen(char	*str);
 char	*gnl_substr(char const *s, unsigned int start, size_t len);
-size_t	gnl_strlen(const char *s);
+char	*ft_strjoin(char const *s1, char const *s2);
 
 #endif
