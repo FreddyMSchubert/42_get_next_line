@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: freddy <freddy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fschuber <fschuber@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 07:07:11 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/23 15:54:20 by freddy           ###   ########.fr       */
+/*   Updated: 2023/10/24 06:31:45 by fschuber         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ int	ft_strlen(const char *str)
 	int	counter;
 
 	counter = 0;
+	if (!str)
+		return (0);
 	while (str[counter])
 		counter++;
 	return (counter);
@@ -28,8 +30,8 @@ int	ft_strlen(const char *str)
 char	*gnl_substr(char const *s, int start, size_t len)
 {
 	char		*p;
-	size_t		substr_len;
-	size_t		counter;
+	int			substr_len;
+	int			counter;
 
 	substr_len = len;
 	if (ft_strlen(s) - start < (int) len)
@@ -60,19 +62,19 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	char		*p;
 
 	counter = 0;
+	if (s1 == NULL && s2 == NULL)
+		return (gnl_substr("", 0, 0));
 	s1size = ft_strlen(s1);
 	s2size = ft_strlen(s2);
-	if (s2 == NULL)
-		return ((char *) s1);
 	p = (char *)malloc(s1size + s2size + 1);
 	if (p == NULL)
 		return (NULL);
-	while (counter < s1size)
+	while (s1 && counter < s1size)
 	{
 		p[counter] = s1[counter];
 		counter++;
 	}
-	while (counter < s1size + s2size)
+	while (s2 && counter < s1size + s2size)
 	{
 		p[counter] = s2[counter - s1size];
 		counter++;

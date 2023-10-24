@@ -3,23 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: freddy <freddy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fschuber <fschuber@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 10:24:54 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/23 15:45:15 by freddy           ###   ########.fr       */
+/*   Updated: 2023/10/24 07:42:37 by fschuber         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int	get_first_nl(char *str)
+/*
+	@return		Index of first occurrence of x in str or -1
+*/
+int	get_first_char(char *str, char x)
 {
 	int		counter;
 
 	counter = 0;
 	while (str[counter] != '\0')
 	{
-		if (str[counter] == '\n')
+		if (str[counter] == x)
 			return (counter);
 		counter++;
 	}
@@ -27,21 +30,24 @@ int	get_first_nl(char *str)
 }
 
 /*
-	@brief		Updates leftovers if there is new line, returns curr line or NULL
+	@brief		Updates leftovers (lo) to start after \\n
+	@return		Found line or NULL
 */
-static char	*get_line(char	*leftovers)
+static char	*get_line(char	**lo)
 {
 	char		*current_line;
-	char		*new_leftovers;
-	int			first_nl;
+	char		*new_lo;
+	int			nl;
 
-	first_nl = get_first_nl(leftovers);
-	if (first_nl > -1)
+	nl = get_first_char(*lo, '\n');
+	if (nl > -1)
 	{
-		current_line = gnl_substr(leftovers, 0, first_nl);
-		new_leftovers = gnl_substr(leftovers, first_nl, ft_strlen(leftovers));
-		free(leftovers);
-		leftovers = new_leftovers;
+		current_line = gnl_substr(*lo, 0, nl);
+		new_lo = gnl_substr(*lo, nl + 1, ft_strlen(*lo) - nl - 1);
+		if (!current_line || !new_lo)
+			return (free(current_line), free(new_lo), NULL);
+		free(*lo);
+		*lo = new_lo;
 		return (current_line);
 	}
 	return (NULL);
@@ -54,13 +60,15 @@ char	*get_next_line(int fd)
 	char			*temp;
 	int				read_ret;
 
+	if (read(fd, "a", 0) < 0)
+		return (NULL);
 	if (!leftovers)
 		leftovers = malloc(sizeof(char) * BUFFER_SIZE);
 	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
 	if (!leftovers || !buffer)
 		return (NULL);
 	buffer[BUFFER_SIZE] = '\0';
-	temp = get_line(leftovers);
+	temp = get_line(&leftovers);
 	if (temp != NULL)
 		return (temp);
 	read_ret = read(fd, buffer, BUFFER_SIZE);
@@ -69,8 +77,10 @@ char	*get_next_line(int fd)
 	temp = leftovers;
 	leftovers = ft_strjoin(leftovers, buffer);
 	free (temp);
-	if (get_first_nl(leftovers) == -1 && read_ret == 0)
-		return (free(buffer), leftovers);
-	free(buffer);
+	free (buffer);
+	if (!leftovers)
+		return (NULL);
+	if (get_first_char(leftovers, '\n') == -1 && read_ret == 0)
+		return (leftovers);
 	return (get_next_line(fd));
 }
