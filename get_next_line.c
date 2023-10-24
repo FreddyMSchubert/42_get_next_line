@@ -3,26 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fschuber <fschuber@student.42.fr>          +#+  +:+       +#+        */
+/*   By: freddy <freddy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 10:24:54 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/23 08:23:44 by fschuber         ###   ########.fr       */
+/*   Updated: 2023/10/23 15:45:15 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int		ft_strlen(char	*str)
-{
-	int	counter;
-
-	counter = 0;
-	while (str[counter])
-		counter++;
-	return (counter);
-}
-
-int		get_first_nl_index(char		*str)
+int	get_first_nl(char *str)
 {
 	int		counter;
 
@@ -37,33 +27,32 @@ int		get_first_nl_index(char		*str)
 }
 
 /*
-	@brief		Returns current line and updates leftovers if there is a new line, or returns NULL
+	@brief		Updates leftovers if there is new line, returns curr line or NULL
 */
 static char	*get_line(char	*leftovers)
 {
-	int			counter;
 	char		*current_line;
-	char		*updated_leftovers;
+	char		*new_leftovers;
+	int			first_nl;
 
-	counter = 0;
-	if (get_first_nl_index(leftovers) > -1)
+	first_nl = get_first_nl(leftovers);
+	if (first_nl > -1)
 	{
-		current_line = gnl_substr(leftovers, 0, counter);
-		leftovers = gnl_substr(leftovers, counter, ft_strlen(leftovers));
+		current_line = gnl_substr(leftovers, 0, first_nl);
+		new_leftovers = gnl_substr(leftovers, first_nl, ft_strlen(leftovers));
+		free(leftovers);
+		leftovers = new_leftovers;
 		return (current_line);
 	}
 	return (NULL);
-	return (gnl_substr(leftovers, 0, ft_strlen(leftovers)));
 }
 
-/*
-	@brief (leftovers)		Keeps the content of str after the new line between function calls
-*/
-char	*get_next_line(int	fd)
+char	*get_next_line(int fd)
 {
 	static char		*leftovers;
 	char			*buffer;
-	char			*temp_line;
+	char			*temp;
+	int				read_ret;
 
 	if (!leftovers)
 		leftovers = malloc(sizeof(char) * BUFFER_SIZE);
@@ -71,22 +60,17 @@ char	*get_next_line(int	fd)
 	if (!leftovers || !buffer)
 		return (NULL);
 	buffer[BUFFER_SIZE] = '\0';
-	temp_line = get_line(leftovers);
-	if (temp_line != NULL)
-		return (temp_line);
-	read(fd, buffer, BUFFER_SIZE);
-	if (buffer == -1)
-		return (NULL);
+	temp = get_line(leftovers);
+	if (temp != NULL)
+		return (temp);
+	read_ret = read(fd, buffer, BUFFER_SIZE);
+	if (read_ret == -1)
+		return (free(buffer), NULL);
+	temp = leftovers;
 	leftovers = ft_strjoin(leftovers, buffer);
-	if (get_first_nl_index(leftovers) == -1 && buffer == 0)
+	free (temp);
+	if (get_first_nl(leftovers) == -1 && read_ret == 0)
 		return (free(buffer), leftovers);
 	free(buffer);
 	return (get_next_line(fd));
 }
-
-/*
-	- on the first iteration when leftovers is null, weird shit will happen with strjoin. instead, change strjoin to return the other string if either string is null
-	- handle memory leaks all over but i can do that later
-		- leftovers when its reassigned to strjoin
-		- temp_line
-*/
