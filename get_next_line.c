@@ -5,82 +5,95 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fschuber <fschuber@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/19 10:24:54 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/24 07:42:37 by fschuber         ###   ########.fr       */
+/*   Created: 2023/10/25 07:18:01 by fschuber          #+#    #+#             */
+/*   Updated: 2023/10/25 11:04:35 by fschuber         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <stdio.h>
 
 /*
-	@return		Index of first occurrence of x in str or -1
+	@brief		Finds the first new line in the string
+	@return		The index or -1 if there's no new line
 */
-int	get_first_char(char *str, char x)
+int	get_first_nl_index(char *str)
 {
-	int		counter;
+	int	counter;
 
-	counter = 0;
-	while (str[counter] != '\0')
-	{
-		if (str[counter] == x)
+	counter = -1;
+	if (!str)
+		return (-1);
+	while (str[++counter] != '\0')
+		if (str[counter] == '\n')
 			return (counter);
-		counter++;
-	}
 	return (-1);
 }
 
 /*
-	@brief		Updates leftovers (lo) to start after \\n
-	@return		Found line or NULL
+	@brief		Reads one chunk from filedes & appends it to left. 
+	@brief		The return value of read gets written into read_ret.
 */
-static char	*get_line(char	**lo)
+int	get_next_chunk(char **left, int filedes, int *read_ret)
 {
-	char		*current_line;
-	char		*new_lo;
-	int			nl;
+	char			*temp;
+	char			*buffer;
+	int				counter;
 
-	nl = get_first_char(*lo, '\n');
-	if (nl > -1)
-	{
-		current_line = gnl_substr(*lo, 0, nl);
-		new_lo = gnl_substr(*lo, nl + 1, ft_strlen(*lo) - nl - 1);
-		if (!current_line || !new_lo)
-			return (free(current_line), free(new_lo), NULL);
-		free(*lo);
-		*lo = new_lo;
-		return (current_line);
-	}
-	return (NULL);
+	counter = BUFFER_SIZE;
+	buffer = malloc((BUFFER_SIZE * sizeof(char)) + 1);
+	if (!buffer)
+		return (0);
+	buffer[BUFFER_SIZE] = '\0';
+	*read_ret = read(filedes, buffer, BUFFER_SIZE);
+	if (*read_ret < 0)
+		return (free(buffer), 0);
+	temp = *left;
+	*left = ft_strjoin(temp, buffer);
+	free (buffer);
+	return (1);
 }
 
-char	*get_next_line(int fd)
+/*
+	@brief		Returns a full line & removes it from left
+
+	problem (?) this function always assumes there is something after the split.
+	actually no substr will return 
+*/
+char	*split_off_line(char **left, int split_i)
 {
-	static char		*leftovers;
-	char			*buffer;
-	char			*temp;
+	char	*temp_left;
+	char	*temp_return;
+
+	temp_return = gnl_substr(*left, 0, split_i);
+	temp_left = gnl_substr(*left, split_i, ft_strlen(*left) - split_i);
+	free(*left);
+	*left = temp_left;
+	return (temp_return);
+}
+
+/*
+	@brief	left:	chars read but not returned in last function call;
+	@brief	read_ret:	return value of read call
+*/
+char	*get_next_line(int filedes)
+{
+	static char		*left;
 	int				read_ret;
 
-	if (read(fd, "a", 0) < 0)
+	if (read(filedes, "a", 1) < 0)
 		return (NULL);
-	if (!leftovers)
-		leftovers = malloc(sizeof(char) * BUFFER_SIZE);
-	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
-	if (!leftovers || !buffer)
-		return (NULL);
-	buffer[BUFFER_SIZE] = '\0';
-	temp = get_line(&leftovers);
-	if (temp != NULL)
-		return (temp);
-	read_ret = read(fd, buffer, BUFFER_SIZE);
-	if (read_ret == -1)
-		return (free(buffer), NULL);
-	temp = leftovers;
-	leftovers = ft_strjoin(leftovers, buffer);
-	free (temp);
-	free (buffer);
-	if (!leftovers)
-		return (NULL);
-	if (get_first_char(leftovers, '\n') == -1 && read_ret == 0)
-		return (leftovers);
-	return (get_next_line(fd));
+	read_ret = 1;
+	while (get_first_nl_index(left) == -1 && read_ret != 0)
+		get_next_chunk(&left, filedes, &read_ret);
+	if (ft_strlen(left) > 0)
+	{
+		if (get_first_nl_index(left) == -1)
+			return (split_off_line(&left, ft_strlen(left)));
+		else
+			return (split_off_line(&left, get_first_nl_index(left) + 1));
+	}
+	if (ft_strlen(left) <= 0 && read_ret == 0)
+		return (free(left), NULL);
+	return (NULL);
 }

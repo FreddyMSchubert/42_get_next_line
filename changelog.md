@@ -2,15 +2,15 @@
 
 > v grading_attempt.logic_version.update
 
-#### Potential Future Improvements
-- Change strjoin to use realloc instead of new malloc
-- make get_next_line iterative to stop stack overflows for large files
-- General Improvements
+### v0.4.0
+- logic revamp, made get_next_line iterative instead of recursive
+- there are many sigsevs as it stands.
 
 #### v0.3.2
 - ensured functionality of util functions, ironed out edge cases
 - made strjoin return the other string if either string is NULL
 - logic improvements in get_line
+- General Improvements
 
 #### v0.3.1
 - strjoin while condition logic + typo fix
