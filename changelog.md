@@ -2,6 +2,13 @@
 
 > v grading_attempt.logic_version.update
 
+#### v0.4.1
+- fixed filedes validity check
+- get_next_chunk error case improvements
+- can just return left instead of making exact copy at last function call
+- various improvements
+- no change to errors, but defenitely a positive improvement still
+
 ### v0.4.0
 - logic revamp, made get_next_line iterative instead of recursive
 - there are many sigsevs as it stands.

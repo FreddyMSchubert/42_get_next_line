@@ -3,15 +3,35 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fschuber <fschuber@student.42.fr>          +#+  +:+       +#+        */
+/*   By: freddy <freddy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 07:07:11 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/24 06:31:45 by fschuber         ###   ########.fr       */
+/*   Updated: 2023/10/25 17:38:30 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+/*
+	@brief		Finds the first new line in the string; \n
+	@return		The index or -1 if there's no new line; \n
+*/
+int	gnl_strchr(char *str, int c)
+{
+	int	counter;
+
+	counter = -1;
+	if (!str)
+		return (0);
+	while (str[++counter] != '\0')
+		if (str[counter] == c)
+			return (counter);
+	return (-1);
+}
+
+/*
+	@returns		Length of inputted string;
+*/
 int	ft_strlen(const char *str)
 {
 	int	counter;
@@ -25,7 +45,7 @@ int	ft_strlen(const char *str)
 }
 
 /*
-	@brief Returns a substring of string s of length len beginning at index start
+	@brief		Returns a substring of string s of length len beginning at index start;
 */
 char	*gnl_substr(char const *s, int start, size_t len)
 {
@@ -52,7 +72,7 @@ char	*gnl_substr(char const *s, int start, size_t len)
 }
 
 /*
-	@brief Returns a new string combined of s1 and s2 without freeing anything
+	@brief		Returns a new string combined of s1 and s2 without freeing anything;
 */
 char	*ft_strjoin(char const *s1, char const *s2)
 {
