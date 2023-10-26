@@ -6,7 +6,7 @@
 /*   By: freddy <freddy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 07:07:11 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/25 17:38:30 by freddy           ###   ########.fr       */
+/*   Updated: 2023/10/26 06:15:38 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,19 @@
 
 /*
 	@brief		Finds the first new line in the string; \n
-	@return		The index or -1 if there's no new line; \n
+	@return		The index, -1 for NULL or -2 if there's no new line; \n
 */
 int	gnl_strchr(char *str, int c)
 {
 	int	counter;
 
 	counter = -1;
-	if (!str)
-		return (0);
+	if (str == NULL)
+		return (-1);
 	while (str[++counter] != '\0')
 		if (str[counter] == c)
 			return (counter);
-	return (-1);
+	return (-2);
 }
 
 /*

@@ -6,11 +6,16 @@
 /*   By: freddy <freddy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 07:18:01 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/25 17:49:33 by freddy           ###   ########.fr       */
+/*   Updated: 2023/10/26 06:49:15 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+// delete these
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /*
 	@brief		Reads one chunk from filedes & appends it to left; \n
@@ -31,9 +36,10 @@ int	get_next_chunk(char **left, int filedes, int *read_ret)
 	buffer[*read_ret] = '\0';
 	temp = *left;
 	*left = ft_strjoin(temp, buffer);
+	free (buffer);
+	free (temp);
 	if (!*left)
 		return (-1);
-	free (buffer);
 	return (1);
 }
 
@@ -62,10 +68,8 @@ char	*get_next_line(int filedes)
 	static char		*left;
 	int				read_ret;
 
-	if (read(filedes, NULL, 0) == -1)
-		return (free (left), NULL);
 	read_ret = 1;
-	while (gnl_strchr(left, '\n') == -1 && read_ret > 0)
+	while (gnl_strchr(left, '\n') < 0 && read_ret > 0)
 		if (get_next_chunk(&left, filedes, &read_ret) == -1)
 			return (free (left), NULL);
 	if (ft_strlen(left) > 0)
@@ -73,9 +77,26 @@ char	*get_next_line(int filedes)
 		if (gnl_strchr(left, '\n') == -1)
 			return (left);
 		else
-			return (split_off_line(&left, gnl_strchr(left, '\n')));
+			return (split_off_line(&left, gnl_strchr(left, '\n') + 1));
 	}
 	if (ft_strlen(left) == 0 && read_ret == 0)
 		return (free (left), NULL);
 	return (NULL);
 }
+
+// int main() {
+//     int fd = open("test.txt", O_RDONLY);  // Open the file
+//     if (fd == -1) {
+//         perror("Error opening file");
+//         return 1;
+//     }
+
+//     char *line;
+//     while ((line = get_next_line(fd)) != NULL) {
+//         printf("%s\n", line);  // Print the line
+//         free(line);  // Free the allocated line
+//     }
+
+//     close(fd);  // Close the file
+//     return 0;
+// }

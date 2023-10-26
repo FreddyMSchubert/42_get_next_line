@@ -2,6 +2,11 @@
 
 > v grading_attempt.logic_version.update
 
+#### v0.4.2
+- Various smaller logic & clarity improvements
+- most general cases now work, there are still failing edge cases.
+- included testing function
+
 #### v0.4.1
 - fixed filedes validity check
 - get_next_chunk error case improvements
