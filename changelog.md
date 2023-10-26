@@ -2,6 +2,15 @@
 
 > v grading_attempt.logic_version.update
 
+## Problems
+- Last lines not ending in \n dont get returned
+
+### v0.4.3
+- Fixed gnl new line if condition in return block, was checking for wrong value (-1 instead of -2)
+	- Now all test cases work perfectly but 4
+- there was an error with the reaccessing a freed left, but setting left to NULL after freeing it did the trick
+	- all non-strict test cases functional
+
 #### v0.4.2
 - Various smaller logic & clarity improvements
 - most general cases now work, there are still failing edge cases.
