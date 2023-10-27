@@ -6,16 +6,11 @@
 /*   By: fschuber <fschuber@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 07:18:01 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/26 08:48:58 by fschuber         ###   ########.fr       */
+/*   Updated: 2023/10/27 12:45:46 by fschuber         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-// delete these
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 /*
 	@brief		Reads one chunk from filedes & appends it to left; \n
@@ -83,27 +78,3 @@ char	*get_next_line(int filedes)
 		return (free (left), left = NULL, NULL);
 	return (free(left), left = NULL, NULL);
 }
-
-// int	main(void)
-// {
-// 	int			fd;
-// 	char		*line;
-
-// 	fd = open("test.txt", O_RDONLY);
-// 	if (fd == -1)
-// 	{
-// 		perror("Error opening file");
-// 		return (1);
-// 	}
-// 	while ((line = get_next_line(fd)) != NULL)
-// 	{
-// 		printf ("%s", line);
-// 		free (line);
-// 	}
-// 	if (close(fd) == -1)
-// 	{
-// 		perror("Error closing file");
-// 		return (EXIT_FAILURE);
-// 	}
-// 	return (0);
-// }
