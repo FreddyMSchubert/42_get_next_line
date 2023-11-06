@@ -2,8 +2,8 @@
 
 > v grading_attempt.logic_version.update
 
-## Problems
-- Last lines not ending in \n dont get returned
+#### v0.4.4
+- Post hand-in update, changed function names to stop conflicting definitions of same name when importing project
 
 ### v0.4.3
 - Fixed gnl new line if condition in return block, was checking for wrong value (-1 instead of -2)

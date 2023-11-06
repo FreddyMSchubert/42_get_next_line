@@ -6,7 +6,7 @@
 /*   By: freddy <freddy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 10:25:52 by fschuber          #+#    #+#             */
-/*   Updated: 2023/10/25 17:10:19 by freddy           ###   ########.fr       */
+/*   Updated: 2023/11/06 14:43:15 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@
 // utils
 
 int		gnl_strchr(char *str, int c);
-int		ft_strlen(const char	*str);
+int		gnl_strlen(const char	*str);
 char	*gnl_substr(char const *s, int start, size_t len);
-char	*ft_strjoin(char const *s1, char const *s2);
+char	*gnl_strjoin(char const *s1, char const *s2);
 
 // important
 
