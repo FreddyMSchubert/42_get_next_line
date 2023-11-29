@@ -2,6 +2,27 @@
 
 > v grading_attempt.logic_version.update
 
+### v0.4.6
+- did some docker + valgrind checking. no memory leaks! only thing you gotta do is free the lines that are being returned by get_next_line.
+Correct example using 42 norminette:
+```C
+int main(void) {
+	int			fd;
+	char		*line;
+
+	fd = open("./file.txt", O_RDONLY);
+
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		printf("%s", line);
+		free(line);
+	}
+
+	close(fd);
+	return 0;
+}
+```
+
 ### v0.4.5
 - added a makefile and compiled the files into a library for easier use in other projects
 
