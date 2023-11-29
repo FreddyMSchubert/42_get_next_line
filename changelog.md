@@ -2,6 +2,9 @@
 
 > v grading_attempt.logic_version.update
 
+### v0.4.5
+- added a makefile and compiled the files into a library for easier use in other projects
+
 #### v0.4.4
 - Post hand-in update, changed function names to stop conflicting definitions of same name when importing project
 
