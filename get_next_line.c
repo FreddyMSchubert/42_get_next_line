@@ -63,6 +63,8 @@ char	*get_next_line(int filedes)
 	static char		*left;
 	int				read_ret;
 
+	if (filedes < 0)
+		return (free(left), left = NULL, NULL);
 	read_ret = 1;
 	while (gnl_strchr(left, '\n') < 0 && read_ret > 0)
 		if (get_next_chunk(&left, filedes, &read_ret) == -1)
